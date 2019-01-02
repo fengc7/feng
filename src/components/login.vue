@@ -28,18 +28,21 @@ export default {
       }
   },
   methods:{
+    
       async handleLogin(){
         const res =await this.$http.post("login",this.formdata)
+        // console.log(res)
         const {data:{data,meta:{msg,status}}} = res
         if(status ===200){
         //  保存token值（以后会有其他用处）
         localStorage.setItem('token',data.token)
         //  编程式导航
+        
          this.$router.push({
            name:"home"
          })
         }else{
-          this.$message.warming(msg);
+          this.$message.warning(msg)
         }
       }
   }
