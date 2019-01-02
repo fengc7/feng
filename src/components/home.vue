@@ -24,7 +24,7 @@
               <span>用户管理</span>
             </template>
 
-            <el-menu-item index="mainuser">
+            <el-menu-item index="users">
               <i class="el-icon-location"></i>
               用户列表
             </el-menu-item>
@@ -102,31 +102,31 @@
 <script>
 export default {
   // 在组件渲染前，判断 if token 是否存在-> newVue之前
-  beforeCreate() {
-     if (!localStorage.getItem("token")) {
+  beforeCreate () {
+    if (!localStorage.getItem('token')) {
       //  编程式导航回到登陆页
-         this.$router.push({
-           name:'login'
-         })  
-         this.$message.warning("请先登录")
+      this.$router.push({
+        name: 'login'
+      })
+      this.$message.warning('请先登录')
     }
   },
- 
-  methods:{
 
-    handleLoginout(){
+  methods: {
+
+    handleLoginout () {
       // 清除token
-      localStorage.clear();
+      localStorage.clear()
 
       // 编程式导航
       this.$router.push({
-        name:'login'
+        name: 'login'
       })
-      // 
-      this.$message.success("退出成功")
+      //
+      this.$message.success('退出成功')
     }
   }
-};
+}
 </script>
 
 <style>
@@ -137,7 +137,7 @@ export default {
   background-color: #b3c0d1;
 }
 .middle {
-  
+
   line-height: 60px;
   text-align: center;
 }

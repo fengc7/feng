@@ -6,9 +6,11 @@ import router from './router'
 import './assets/style.css'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import moment from 'moment' // 处理日期
 
 import Http from './plugins/http'
 
+Vue.use(moment)
 Vue.use(Http)
 Vue.use(ElementUI)
 
