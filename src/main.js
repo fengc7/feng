@@ -10,6 +10,9 @@ import moment from 'moment' // 处理日期
 
 import Http from './plugins/http'
 
+Vue.filter('dayData',(v)=>{
+  return moment(v).format('YYYY-MM-DD')
+})
 Vue.use(moment)
 Vue.use(Http)
 Vue.use(ElementUI)
