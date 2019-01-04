@@ -49,7 +49,7 @@
       <el-table-column  label="操作">
         <template slot-scope="scope">
           <el-row>
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button type="primary" icon="el-icon-edit" circle @click="editUserName(scope.row)"></el-button>
             <el-button type="danger" icon="el-icon-delete" circle @click="showdeletedata(scope.row)"></el-button>
             <el-button type="success" icon="el-icon-check" circle></el-button>
           </el-row>
@@ -96,6 +96,25 @@
   </div>
  </el-dialog>
 
+
+<!-- 修改用户 -->
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleEdit">
+  <el-form :model="form">
+    <el-form-item label="用户名" :label-width="formLabelWidth">
+     <el-input v-model="form.username" autocomplete="off"></el-input>
+    </el-form-item>
+    <el-form-item label="邮箱" :label-width="formLabelWidth">
+      <el-input v-model="form.email" autocomplete="off"></el-input>
+    </el-form-item>
+    <el-form-item label="电话" :label-width="formLabelWidth">
+      <el-input v-model="form.mobile" autocomplete="off"></el-input>
+    </el-form-item>
+   </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
+    <el-button type="primary" @click="EditUser()">确 定</el-button>
+  </div>
+ </el-dialog>
  </el-card>
 </template>
 
@@ -116,7 +135,8 @@ export default {
         mobile:""
       },
       formLabelWidth:'100px',
-      dialogFormVisibleAdd:false
+      dialogFormVisibleAdd:false,
+      dialogFormVisibleEdit:false
     }
   },
   created () {
@@ -124,6 +144,14 @@ export default {
     this.getTableData()
   },
   methods: {
+
+      // 添加用户框，弹出
+      addUserName(){ 
+        //  清空数据
+        this.form = {};
+        this.dialogFormVisibleAdd = true
+      },
+
     // 添加用户
     async AddUser(){
        
@@ -143,13 +171,6 @@ export default {
         // this.getTableData()
     },
 
-
-         // 添加用户框，弹出
-    addUserName(){ 
-      //  清空数据
-      this.form = {};
-      this.dialogFormVisibleAdd = true
-    },
     // 点击清空时重新获取数据
     showAll(){
       this.getTableData()
@@ -181,19 +202,12 @@ export default {
 
     async getTableData () {
       // 设置token=auth_token，以用来获取数据
-      const AUTH_TOKEN = localStorage.getItem('token')
-      //              设置请求头
-      this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
+
       //  获取首屏数据
       const res = await this.$http.get(`users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
       // console.log(res)
             // 提取数据
-      const{
-        data:{
-        data:{users,total},
-        meta:{status,msg}
-        }
-        }=res
+      const{data:{data:{users,total},meta:{status,msg}}}=res
         // 如果状态对
         if(status === 200){
           // 将数据渲染到页面,给表格数据赋值
@@ -204,9 +218,50 @@ export default {
     }, 
 
     // 删除
-     showdeletedata(){
-        
-     }
+     showdeletedata(value){
+         this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then( async () => {
+          const res = await this.$http.delete(`users/${value.id}`)
+           console.log(res)
+           const {meta:{msg , status}}=res
+           if(status === 200){
+             this.pagenum = 1
+             this.$message.success(msg);
+           }
+        }).catch(() => {
+          this.$message.warning("取消删除");          
+        });
+     },
+
+
+     // 添加用户框，弹出
+      editUserName(user){ 
+        console.log(user)
+        this.form = user
+        this.dialogFormVisibleEdit = true
+      },
+
+      // 更改
+      async EditUser(){
+       const res = await this.$http.post("users" , this.form)
+       
+       const {meta:{msg , status}}=res.data
+       console.log(msg)
+       if(status === 201){
+          // 关闭弹框
+         this.dialogFormVisibleAdd = false 
+        //  this.getTableData()
+       }else{
+         this.$message.warning(msg)
+               //  刷新数据
+        // this.getTableData()
+       }
+        // this.getTableData()
+    }
+
   }
 }
 </script>

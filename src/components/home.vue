@@ -36,7 +36,7 @@
               <span>权限管理</span>
             </template>
 
-            <el-menu-item index="2-1">
+            <el-menu-item index="role">
               <i class="el-icon-location"></i>
               角色列表
             </el-menu-item>
