@@ -44,7 +44,8 @@ export default {
         return {
             roles:[],
             form:{
-                
+                roleDesc:"",
+                roleName:""
             }
         }
     },
@@ -52,9 +53,11 @@ export default {
        this.getRole()
     },
  methods: {
-   async getRole(){
-        const res = await this.$http.get(`roles`)
+     async getRole(){
+        const res = await this.$http.get("roles",this.form)
         console.log(res)
+        this.roles = res.data.data
+       
     }
 },
 }

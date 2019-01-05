@@ -28,7 +28,7 @@
       </el-table-column>
       <el-table-column prop="email" label="邮箱"  width="150">
       </el-table-column>
-      <el-table-column prop="modlie" label="电话" width="150">
+      <el-table-column prop="mobile" label="电话" width="150">
       </el-table-column>
       <el-table-column  label="创建日期" width="140">
         <template slot-scope="scope">
@@ -134,6 +134,9 @@ export default {
         email:"",
         mobile:""
       },
+      data:{
+
+      },
       formLabelWidth:'100px',
       dialogFormVisibleAdd:false,
       dialogFormVisibleEdit:false
@@ -162,13 +165,13 @@ export default {
        if(status === 201){
           // 关闭弹框
          this.dialogFormVisibleAdd = false 
-        //  this.getTableData()
+         this.getTableData()
        }else{
          this.$message.warning(msg)
                //  刷新数据
         // this.getTableData()
        }
-        // this.getTableData()
+        this.getTableData()
     },
 
     // 点击清空时重新获取数据
@@ -209,10 +212,12 @@ export default {
             // 提取数据
       const{data:{data:{users,total},meta:{status,msg}}}=res
         // 如果状态对
+        console.log(res)
         if(status === 200){
           // 将数据渲染到页面,给表格数据赋值
           this.tableData = users
           this.total = total
+          
         }
         this.$message.success(msg)
     }, 
@@ -235,32 +240,29 @@ export default {
           this.$message.warning("取消删除");          
         });
      },
-
-
+      // 更改
+      async EditUser(){
+       const res = await this.$http.put(`users/${this.form.id}` , {email:this.form.email,mobile:this.form.mobile})
+       console.log(res)
+       const {meta:{msg , status}}=res.data
+      //  console.log(msg)
+       if(status === 200){
+          // 关闭弹框
+         this.dialogFormVisibleEdit = false 
+         this.$message.success(msg)
+         this.getTableData()
+       }else{
+         this.$message.warning(msg)
+               //  刷新数据
+        this.getTableData()
+       }
+    },
      // 添加用户框，弹出
       editUserName(user){ 
         console.log(user)
         this.form = user
         this.dialogFormVisibleEdit = true
-      },
-
-      // 更改
-      async EditUser(){
-       const res = await this.$http.post("users" , this.form)
-       
-       const {meta:{msg , status}}=res.data
-       console.log(msg)
-       if(status === 201){
-          // 关闭弹框
-         this.dialogFormVisibleAdd = false 
-        //  this.getTableData()
-       }else{
-         this.$message.warning(msg)
-               //  刷新数据
-        // this.getTableData()
-       }
-        // this.getTableData()
-    }
+      }
 
   }
 }
