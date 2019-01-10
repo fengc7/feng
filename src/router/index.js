@@ -8,6 +8,7 @@ import Right from '../components/right.vue'
 import Goodlist from '../components/goodlist.vue'
 import Params from '../components/goodsparams.vue'
 import Goodsadd from '../components/goodsadd.vue'
+
 // 单独引入
 import {Message} from 'element-ui'
 
@@ -52,6 +53,7 @@ const router = new Router({
   }
   ]
 })
+
 // 路由守卫，执行之前拦截路由
 // to 要去的路由配置
 // from 当前的路由配置
