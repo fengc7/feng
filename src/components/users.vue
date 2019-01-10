@@ -38,11 +38,11 @@
       <el-table-column  label="用户状态" width="80">
         <template slot-scope="scope">
           <el-switch
+            @change="changeloads(scope.row)"
             v-model="scope.row.mg_state"
             active-color="#13ce66"
             inactive-color="#ff4949"
-            active-value="100"
-            inactive-value="0">
+            >
           </el-switch>
         </template>
       </el-table-column>
@@ -51,7 +51,7 @@
           <el-row>
             <el-button type="primary" icon="el-icon-edit" circle @click="editUserName(scope.row)"></el-button>
             <el-button type="danger" icon="el-icon-delete" circle @click="showdeletedata(scope.row)"></el-button>
-            <el-button type="success" icon="el-icon-check" circle></el-button>
+            <el-button type="success" icon="el-icon-check" @click="showEditRole(scope.row)"></el-button>
           </el-row>
         </template>
       </el-table-column>
@@ -73,7 +73,26 @@
       :total="10">
     </el-pagination>
 
-
+<!-- 修改权限 -->
+   <el-dialog title="" :visible.sync="centerDialogVisible">
+  <el-form :model="form">
+    <el-form-item label="用户名" :label-width="formLabelWidth">
+       {{currusername}}
+    </el-form-item>
+    <el-form-item label="活动区域" :label-width="formLabelWidth">
+      <el-select v-model="currUserRoleId" placeholder="请选择活动区域">
+        <el-option label="请选择" :value="-1"></el-option>
+        <el-option  v-for="(v,i) in roles" :key="i"
+        :label = "v.roleName" :value="v.id" > </el-option><!-- label是指需要的数据，要显示的数据
+        v是对象。对象.属性前面需要加：，否“v.roleName”就是字符串 -->
+      </el-select>
+    </el-form-item>
+  </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="centerDialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="showEditRoleID()">确 定</el-button>
+  </div>
+</el-dialog>
 <!-- 添加用户 -->
     <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
   <el-form :model="form">
@@ -120,6 +139,7 @@
 
 <script>
 export default {
+  // data 是数据初始化
   data () {
     return {
       query: '',
@@ -139,7 +159,12 @@ export default {
       },
       formLabelWidth:'100px',
       dialogFormVisibleAdd:false,
-      dialogFormVisibleEdit:false
+      dialogFormVisibleEdit:false,
+      centerDialogVisible:false,
+      roles:[],
+      currUserRoleId:-1,
+      currusername:"",
+      currid:-1
     }
   },
   created () {
@@ -147,6 +172,54 @@ export default {
     this.getTableData()
   },
   methods: {
+    // 点击确定关闭修改权限
+      async showEditRoleID(){
+          // 页面中没有scope.row，就无法传值和 data中也没有声明用户的id
+          // 想要使用id确定用户，只能在data中重新声明一个变量,当前的用户的id
+         const res = await this.$http.put(`users/${this.currid}/role` , 
+         {rid:this.currUserRoleId})
+        //  console.log(res);
+        //  this.currUserRoleId= res.data.rid
+         this.centerDialogVisible = false
+      },
+
+      // 展示修改信息
+      async showEditRole(user){
+        console.log(user)
+        this.currid = user.id
+        this.currusername = user.username
+        // this.currUserRoleId = user.role_name
+         const res = await this.$http.get("roles")
+         this.roles = res.data.data
+          console.log(this.roles);
+          
+         const res2 = await this.$http.get(`users/${user.id}`)
+          // rid = currUserRoleId
+          const{meta:{msg:newMsg , status:newStatus}}=res2.data
+          if(newStatus === 200){
+             this.currUserRoleId = res2.data.data.rid
+             
+          }else{
+            this.$message.warning(newMsg)
+          }
+        this.centerDialogVisible = true
+         console.log(res2)
+         console.log(this.roles);
+         
+        
+      },
+
+
+      // 状态栏展示修改
+      async changeloads(user){
+        const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+        console.log(res)
+        const{meta:{msg,status}}= res.data
+        if(status ===200){
+          this.$message.success(msg);
+
+        }
+      }, 
 
       // 添加用户框，弹出
       addUserName(){ 
@@ -161,7 +234,7 @@ export default {
        const res = await this.$http.post("users" , this.form)
        
        const {meta:{msg , status}}=res.data
-       console.log(msg)
+      //  console.log(msg)
        if(status === 201){
           // 关闭弹框
          this.dialogFormVisibleAdd = false 
@@ -212,7 +285,7 @@ export default {
             // 提取数据
       const{data:{data:{users,total},meta:{status,msg}}}=res
         // 如果状态对
-        console.log(res)
+        // console.log(res)
         if(status === 200){
           // 将数据渲染到页面,给表格数据赋值
           this.tableData = users
@@ -230,7 +303,7 @@ export default {
           type: 'warning'
         }).then( async () => {
           const res = await this.$http.delete(`users/${value.id}`)
-           console.log(res)
+          //  console.log(res)
            const {meta:{msg , status}}=res
            if(status === 200){
              this.pagenum = 1
@@ -243,7 +316,7 @@ export default {
       // 更改
       async EditUser(){
        const res = await this.$http.put(`users/${this.form.id}` , {email:this.form.email,mobile:this.form.mobile})
-       console.log(res)
+      //  console.log(res)
        const {meta:{msg , status}}=res.data
       //  console.log(msg)
        if(status === 200){
@@ -259,7 +332,7 @@ export default {
     },
      // 添加用户框，弹出
       editUserName(user){ 
-        console.log(user)
+        // console.log(user)
         this.form = user
         this.dialogFormVisibleEdit = true
       }
@@ -275,4 +348,5 @@ export default {
 .table{
   overflow: hidden;
 }
+
 </style>
